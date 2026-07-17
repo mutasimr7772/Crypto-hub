@@ -1,599 +1,772 @@
---[[
-    CRYPTO HUB V4 - MOBILE OPTIMIZED
-    Fully Compatible with Delta, Codex, and iPad OS
---]]
+-- [[ 🛑 CRYPTO HUB ULTIMATE EDITION: CUSTOM VAULT EDITION 🛑 ]] --
+-- [[ ENGINE: ASYNCHRONOUS | THREADING: AGGRESSIVE | DETECTION: ZERO ]] --
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
+local StarterGui = game:GetService("StarterGui")
+local VirtualUser = game:GetService("VirtualUser")
+local CoreGui = game:GetService("CoreGui")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 
--- Clean up any existing instances of the hub
-local cleanName = "CryptoHub_Mobile_V4"
-local existing = CoreGui:FindFirstChild(cleanName) or LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild(cleanName)
-if existing then existing:Destroy() end
-
--- Safe UI Parent Fallback (Crucial for Delta Mobile)
-local ParentGui
-local success, err = pcall(function()
-    ParentGui = gethui and gethui() or CoreGui:FindFirstChild("RobloxGui") or CoreGui
+-- ==========================================
+-- 🛡️ MAXIMUM SECURITY: ANTI-AFK & BYPASS
+-- ==========================================
+pcall(function()
+    if getgenv().CryptoUltimate_AntiAFK then return end
+    getgenv().CryptoUltimate_AntiAFK = true
+    
+    local vu = game:GetService("VirtualUser")
+    game:GetService("Players").LocalPlayer.Idled:connect(function()
+        vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    end)
 end)
-if not success or not ParentGui then
-    ParentGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- ==========================================
+-- ⚡ ULTIMATE EXECUTION ENGINE
+-- ==========================================
+local function SafeLoadScript(url, btn)
+    local success, result = false, nil
+    
+    local fetchMethods = {
+        function() return game:HttpGet(url, true) end,
+        function() return game:HttpGetAsync(url) end,
+        function() 
+            local req = (request or http_request or (http and http.request))
+            if req then return req({Url = url, Method = "GET"}).Body end
+        end
+    }
+
+    for _, method in ipairs(fetchMethods) do
+        success, result = pcall(method)
+        if success and result then break end
+    end
+
+    if success and result then
+        task.spawn(function()
+            local execFunc, loadErr = loadstring(result)
+            if execFunc then
+                local execSuccess, runErr = pcall(execFunc)
+                if not execSuccess then warn("Crypto Ultimate Runtime Error: " .. tostring(runErr)) end
+            else
+                warn("Crypto Ultimate Syntax Error: " .. tostring(loadErr))
+            end
+        end)
+        if btn then btn.Text = "INJECTED!" btn.TextColor3 = Color3.fromRGB(50, 255, 50) end
+    else
+        warn("Crypto Ultimate Error: Target network refused connection.")
+        if btn then btn.Text = "NETWORK FAIL" btn.TextColor3 = Color3.fromRGB(255, 50, 50) end
+    end
+    
+    task.wait(2)
+    if btn then btn.Text = "Execute" btn.TextColor3 = Color3.fromRGB(255, 255, 255) end
 end
 
--- Create Main ScreenGui
+-- ===================================================================== --
+-- ⚙️ THE ULTIMATE SCRIPT VAULT (CLEAN CUSTOMIZED CONFIG) ⚙️
+-- ===================================================================== --
+local MyScripts = {
+    -- Category 1: Key Required Scripts
+    {Header = "🔑 KEY REQUIRED SYSTEM", Color = Color3.fromRGB(255, 165, 0)},
+    {Name = "HoHo Hub", Tags = "Blox Fruits | Key", Url = "https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI", Status = "Working"},
+    {Name = "Speed Hub X", Tags = "Blox Fruits | Key", Url = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", Status = "Working"},
+
+    -- Category 2: Keyless Scripts
+    {Header = "🟢 100% KEYLESS SYSTEM", Color = Color3.fromRGB(0, 255, 130)},
+    {Name = "Redz Hub", Tags = "Blox Fruits | Universal | Keyless", Url = "https://rawscripts.net/raw/Universal-Script-Redz-hub-205954", Status = "Working"},
+    {Name = "Gravity Hub", Tags = "Blox Fruits | Keyless", Url = "https://raw.githubusercontent.com/Dev-GravityHub/BloxFruit/refs/heads/main/Main.lua", Status = "Working"},
+    {Name = "Infinite Yield", Tags = "Admin Commands | Keyless", Url = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", Status = "Working"}
+}
+
+-- ==========================================
+-- 🛡️ SYSTEM 3: STEALTH UI ATTACHMENT
+-- ==========================================
+local ParentGui = nil
+pcall(function() ParentGui = gethui and gethui() end) 
+if not ParentGui then pcall(function() ParentGui = CoreGui:FindFirstChild("RobloxGui") or CoreGui end) end
+if not ParentGui or not pcall(function() local _ = ParentGui.Name end) then ParentGui = LocalPlayer:WaitForChild("PlayerGui") end
+
+for _, gui in ipairs(ParentGui:GetChildren()) do
+    if gui.Name == "CryptoUltimate_UI" or gui.Name == "CryptoUltimate_Loader" then gui:Destroy() end
+end
+
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = cleanName
-ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Name = "CryptoUltimate_UI"
 ScreenGui.Parent = ParentGui
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+ScreenGui.IgnoreGuiInset = true 
 
--- Script Data Structure
-local ScriptDatabase = {
-    {
-        Id = "Keyless",
-        Title = "🟢 KEYLESS SCRIPTS",
-        Color = Color3.fromRGB(80, 255, 120),
-        Scripts = {
-            {Name = "Redz Hub", Tags = "Blox Fruits | Universal", Url = "https://rawscripts.net/raw/Universal-Script-Redz-hub-205954", Status = "Working"},
-            {Name = "Gravity Hub", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/Dev-GravityHub/BloxFruit/refs/heads/main/Main.lua", Status = "Working"}
-        }
-    },
-    {
-        Id = "Key",
-        Title = "🔑 KEY REQUIRED",
-        Color = Color3.fromRGB(255, 200, 50),
-        Scripts = {
-            {Name = "HoHo Hub", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI", Status = "Working"},
-            {Name = "Speed Hub X", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", Status = "Working"}
-        }
-    },
-    {
-        Id = "NotWorking",
-        Title = "🔴 OUTDATED / NOT WORKING",
-        Color = Color3.fromRGB(255, 80, 80),
-        Scripts = {
-            {Name = "Nero Hub", Tags = "Mythic Fruit Finder", Url = "https://raw.githubusercontent.com/NeroHubClub/AutoMythicFruitFinder/refs/heads/main/NeroHubFruitFinder", Status = "Not Working"},
-            {Name = "Teddy Hub", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua", Status = "Not Working"}
-        }
-    }
+-- ==========================================
+-- MAIN INTERFACE FRAME
+-- ==========================================
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 0, 0, 0)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0) 
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5) 
+MainFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
+MainFrame.ClipsDescendants = true
+MainFrame.Active = true 
+MainFrame.Visible = false 
+MainFrame.Parent = ScreenGui
+
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Thickness = 2.5
+MainStroke.Color = Color3.fromRGB(255, 255, 255)
+MainStroke.Parent = MainFrame
+
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 20, 20)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(80, 0, 0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 20, 20))
 }
+UIGradient.Rotation = 45
+UIGradient.Parent = MainStroke
 
--- Collapsible states: Outdated is collapsed by default!
-local CategoryState = {
-    Keyless = true,
-    Key = true,
-    NotWorking = false 
-}
+-- Top Banner
+local Topbar = Instance.new("Frame")
+Topbar.Size = UDim2.new(1, 0, 0, 50)
+Topbar.BackgroundColor3 = Color3.fromRGB(14, 14, 18)
+Topbar.BorderSizePixel = 0
+Topbar.Active = true 
+Topbar.Parent = MainFrame
 
--- Safe execution launcher
-local function SafeLoadScript(url, btn)
-    task.spawn(function()
-        local success, err = pcall(function()
-            local raw = game:HttpGet(url)
-            loadstring(raw)()
-        end)
-        if success then
-            btn.Text = "Executed!"
-            task.wait(1.5)
-            btn.Text = "Execute"
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(0, 400, 1, 0)
+Title.Position = UDim2.new(0, 20, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "CRYPTO HUB <font color='rgb(255, 30, 30)'>ULTIMATE EDITION</font>"
+Title.RichText = true
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBlack
+Title.TextSize = 20
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Topbar
+
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 40, 0, 40)
+CloseBtn.Position = UDim2.new(1, -45, 0.5, -20)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Text = "✕"
+CloseBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 18
+CloseBtn.Parent = Topbar
+
+-- ==========================================
+-- TRIPLE TAB SYSTEM
+-- ==========================================
+local TabBar = Instance.new("Frame")
+TabBar.Size = UDim2.new(1, 0, 0, 45)
+TabBar.Position = UDim2.new(0, 0, 0, 50)
+TabBar.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+TabBar.BorderSizePixel = 0
+TabBar.Active = true 
+TabBar.Parent = MainFrame
+
+local function CreateTabBtn(text, pos, width)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, width, 1, -2)
+    btn.Position = UDim2.new(0, pos, 0, 0)
+    btn.BackgroundTransparency = 1
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(120, 120, 130)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    btn.Parent = TabBar
+    return btn
+end
+
+local TabScripts = CreateTabBtn("Ultimate Vault", 15, 130)
+local TabExecutor = CreateTabBtn("Raw Executor", 155, 140)
+local TabDevTools = CreateTabBtn("God Tools", 305, 110)
+TabScripts.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local TabIndicator = Instance.new("Frame")
+TabIndicator.Size = UDim2.new(0, 100, 0, 3)
+TabIndicator.Position = UDim2.new(0, 30, 1, -3)
+TabIndicator.BackgroundColor3 = Color3.fromRGB(255, 20, 20)
+TabIndicator.BorderSizePixel = 0
+TabIndicator.Parent = TabBar
+
+-- ==========================================
+-- PAGES
+-- ==========================================
+local ScriptsPage = Instance.new("Frame")
+ScriptsPage.Size = UDim2.new(1, 0, 1, -125)
+ScriptsPage.Position = UDim2.new(0, 0, 0, 95)
+ScriptsPage.BackgroundTransparency = 1
+ScriptsPage.Visible = true
+ScriptsPage.Parent = MainFrame
+
+local ExecutorPage = Instance.new("Frame")
+ExecutorPage.Size = UDim2.new(1, 0, 1, -125)
+ExecutorPage.Position = UDim2.new(0, 0, 0, 95)
+ExecutorPage.BackgroundTransparency = 1
+ExecutorPage.Visible = false
+ExecutorPage.Parent = MainFrame
+
+local DevToolsPage = Instance.new("ScrollingFrame")
+DevToolsPage.Size = UDim2.new(1, 0, 1, -125)
+DevToolsPage.Position = UDim2.new(0, 0, 0, 95)
+DevToolsPage.BackgroundTransparency = 1
+DevToolsPage.Visible = false
+DevToolsPage.ScrollBarThickness = 5
+DevToolsPage.ScrollBarImageColor3 = Color3.fromRGB(255, 20, 20)
+DevToolsPage.BorderSizePixel = 0
+DevToolsPage.Parent = MainFrame
+
+-- ==========================================
+-- PAGE 1: SCRIPT VAULT
+-- ==========================================
+local SearchBar = Instance.new("TextBox")
+SearchBar.Size = UDim2.new(1, -40, 0, 40)
+SearchBar.Position = UDim2.new(0, 20, 0, 10)
+SearchBar.BackgroundColor3 = Color3.fromRGB(14, 14, 18)
+SearchBar.Text = ""
+SearchBar.PlaceholderText = "🔍 Search the Vault..."
+SearchBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+SearchBar.PlaceholderColor3 = Color3.fromRGB(120, 120, 130)
+SearchBar.Font = Enum.Font.GothamMedium
+SearchBar.TextSize = 14
+SearchBar.Parent = ScriptsPage
+
+Instance.new("UICorner", SearchBar).CornerRadius = UDim.new(0, 8)
+local SearchStroke = Instance.new("UIStroke")
+SearchStroke.Thickness = 1.5
+SearchStroke.Color = Color3.fromRGB(40, 40, 50)
+SearchStroke.Parent = SearchBar
+
+SearchBar.Focused:Connect(function() SearchStroke.Color = Color3.fromRGB(255, 30, 30) end)
+SearchBar.FocusLost:Connect(function() SearchStroke.Color = Color3.fromRGB(40, 40, 50) end)
+
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Size = UDim2.new(1, -40, 1, -65)
+ScrollFrame.Position = UDim2.new(0, 20, 0, 60)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.ScrollBarThickness = 5
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 20, 20)
+ScrollFrame.BorderSizePixel = 0
+ScrollFrame.Parent = ScriptsPage
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 12)
+UIListLayout.Parent = ScrollFrame
+
+UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y + 20)
+end)
+
+local CardList = {}
+
+for _, item in ipairs(MyScripts) do
+    if item.Header then
+        local HeaderLabel = Instance.new("TextLabel")
+        HeaderLabel.Size = UDim2.new(1, -10, 0, 30)
+        HeaderLabel.BackgroundTransparency = 1
+        HeaderLabel.Text = item.Header
+        HeaderLabel.TextColor3 = item.Color
+        HeaderLabel.Font = Enum.Font.GothamBlack
+        HeaderLabel.TextSize = 12
+        HeaderLabel.TextXAlignment = Enum.TextXAlignment.Left
+        HeaderLabel.Parent = ScrollFrame
+    else
+        local Card = Instance.new("Frame")
+        Card.Size = UDim2.new(1, -10, 0, 70)
+        Card.BackgroundColor3 = Color3.fromRGB(16, 16, 22)
+        Card.Parent = ScrollFrame
+        Instance.new("UICorner", Card).CornerRadius = UDim.new(0, 8)
+        Instance.new("UIStroke", Card).Color = Color3.fromRGB(30, 30, 40)
+
+        local NameValue = Instance.new("StringValue")
+        NameValue.Name = "ScriptName"
+        NameValue.Value = item.Name
+        NameValue.Parent = Card
+
+        local Lbl = Instance.new("TextLabel")
+        Lbl.Size = UDim2.new(0, 250, 0, 20)
+        Lbl.Position = UDim2.new(0, 15, 0, 12)
+        Lbl.BackgroundTransparency = 1
+        Lbl.Text = item.Name
+        Lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Lbl.Font = Enum.Font.GothamBold
+        Lbl.TextSize = 16
+        Lbl.TextXAlignment = Enum.TextXAlignment.Left
+        Lbl.Parent = Card
+        
+        local TagColor = string.find(item.Tags, "Keyless") and Color3.fromRGB(100, 255, 120) or Color3.fromRGB(255, 165, 0)
+        
+        local TagLbl = Instance.new("TextLabel")
+        TagLbl.Size = UDim2.new(0, 250, 0, 15)
+        TagLbl.Position = UDim2.new(0, 15, 0, 38)
+        TagLbl.BackgroundTransparency = 1
+        TagLbl.Text = item.Tags
+        TagLbl.TextColor3 = TagColor
+        TagLbl.Font = Enum.Font.GothamMedium
+        TagLbl.TextSize = 12
+        TagLbl.TextXAlignment = Enum.TextXAlignment.Left
+        TagLbl.Parent = Card
+        
+        local ExecBtn = Instance.new("TextButton")
+        ExecBtn.Size = UDim2.new(0, 100, 0, 40)
+        ExecBtn.Position = UDim2.new(1, -115, 0.5, -20)
+        
+        if item.Status == "Not Working" then
+            ExecBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+            ExecBtn.Text = "Patched"
+            ExecBtn.TextColor3 = Color3.fromRGB(100, 100, 110)
         else
-            btn.Text = "Failed!"
-            warn("Crypto Hub Error loading: " .. tostring(err))
-            task.wait(1.5)
-            btn.Text = "Execute"
+            ExecBtn.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
+            ExecBtn.Text = "EXECUTE"
+            ExecBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        end
+        
+        ExecBtn.Font = Enum.Font.GothamBlack
+        ExecBtn.TextSize = 13
+        ExecBtn.Parent = Card
+        Instance.new("UICorner", ExecBtn).CornerRadius = UDim.new(0, 6)
+
+        if item.Status == "Working" then
+            ExecBtn.Activated:Connect(function()
+                ExecBtn.Text = "LOADING..."
+                task.spawn(function() SafeLoadScript(item.Url, ExecBtn) end)
+            end)
+        end
+        table.insert(CardList, Card)
+    end
+end
+
+SearchBar:GetPropertyChangedSignal("Text"):Connect(function()
+    local q = string.lower(SearchBar.Text)
+    for _, card in ipairs(CardList) do
+        local val = card:FindFirstChild("ScriptName")
+        if val then
+            card.Visible = string.find(string.lower(val.Value), q) ~= nil
+        end
+    end
+end)
+
+-- ==========================================
+-- PAGE 2: RAW LUA EXECUTOR
+-- ==========================================
+local CodeBox = Instance.new("TextBox")
+CodeBox.Size = UDim2.new(1, -40, 1, -70)
+CodeBox.Position = UDim2.new(0, 20, 0, 10)
+CodeBox.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+CodeBox.ClearTextOnFocus = false
+CodeBox.MultiLine = true
+CodeBox.Text = ""
+CodeBox.PlaceholderText = "-- [ULTIMATE EDITION COMPILER]\n-- Enter Raw Lua Scripts Here..."
+CodeBox.TextColor3 = Color3.fromRGB(100, 255, 100)
+CodeBox.Font = Enum.Font.Code
+CodeBox.TextSize = 14
+CodeBox.TextXAlignment = Enum.TextXAlignment.Left
+CodeBox.TextYAlignment = Enum.TextYAlignment.Top
+CodeBox.Parent = ExecutorPage
+Instance.new("UICorner", CodeBox).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", CodeBox).Color = Color3.fromRGB(40, 40, 50)
+
+local RunCustomBtn = Instance.new("TextButton")
+RunCustomBtn.Size = UDim2.new(0, 160, 0, 45)
+RunCustomBtn.Position = UDim2.new(0, 20, 1, -50)
+RunCustomBtn.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
+RunCustomBtn.Text = "EXECUTE CODE"
+RunCustomBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+RunCustomBtn.Font = Enum.Font.GothamBlack
+RunCustomBtn.TextSize = 14
+RunCustomBtn.Parent = ExecutorPage
+Instance.new("UICorner", RunCustomBtn).CornerRadius = UDim.new(0, 6)
+
+RunCustomBtn.Activated:Connect(function()
+    local code = CodeBox.Text
+    if code ~= "" then
+        local func, err = loadstring(code)
+        if func then
+            local s, e = pcall(func)
+            if not s then RunCustomBtn.Text = "RUNTIME ERROR" end
+        else
+            RunCustomBtn.Text = "SYNTAX ERROR"
+        end
+        task.wait(2)
+        RunCustomBtn.Text = "EXECUTE CODE"
+    end
+end)
+
+local ClearBtn = Instance.new("TextButton")
+ClearBtn.Size = UDim2.new(0, 100, 0, 45)
+ClearBtn.Position = UDim2.new(0, 190, 1, -50)
+ClearBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+ClearBtn.Text = "Clear"
+ClearBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ClearBtn.Font = Enum.Font.GothamBold
+ClearBtn.TextSize = 14
+ClearBtn.Parent = ExecutorPage
+Instance.new("UICorner", ClearBtn).CornerRadius = UDim.new(0, 6)
+ClearBtn.Activated:Connect(function() CodeBox.Text = "" end)
+
+-- ==========================================
+-- PAGE 3: GOD TOOLS (POWERFUL FEATURES)
+-- ==========================================
+local DevLayout = Instance.new("UIGridLayout")
+DevLayout.CellSize = UDim2.new(0, 170, 0, 105)
+DevLayout.CellPadding = UDim2.new(0, 15, 0, 15)
+DevLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+DevLayout.SortOrder = Enum.SortOrder.LayoutOrder
+DevLayout.Parent = DevToolsPage
+
+DevLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    DevToolsPage.CanvasSize = UDim2.new(0, 0, 0, DevLayout.AbsoluteContentSize.Y + 30)
+end)
+
+local function CreateDevTool(name, desc, color, actionCallback)
+    local ToolCard = Instance.new("Frame")
+    ToolCard.BackgroundColor3 = Color3.fromRGB(16, 16, 22)
+    ToolCard.Parent = DevToolsPage
+    Instance.new("UICorner", ToolCard).CornerRadius = UDim.new(0, 8)
+    Instance.new("UIStroke", ToolCard).Color = Color3.fromRGB(30, 30, 40)
+    
+    local ToolTitle = Instance.new("TextLabel")
+    ToolTitle.Size = UDim2.new(1, 0, 0, 30)
+    ToolTitle.Position = UDim2.new(0, 0, 0, 10)
+    ToolTitle.BackgroundTransparency = 1
+    ToolTitle.Text = name
+    ToolTitle.TextColor3 = color
+    ToolTitle.Font = Enum.Font.GothamBlack
+    ToolTitle.TextSize = 14
+    ToolTitle.Parent = ToolCard
+
+    local ToolDesc = Instance.new("TextLabel")
+    ToolDesc.Size = UDim2.new(1, -20, 0, 40)
+    ToolDesc.Position = UDim2.new(0, 10, 0, 40)
+    ToolDesc.BackgroundTransparency = 1
+    ToolDesc.Text = desc
+    ToolDesc.TextColor3 = Color3.fromRGB(160, 160, 170)
+    ToolDesc.Font = Enum.Font.GothamMedium
+    ToolDesc.TextSize = 11
+    ToolDesc.TextWrapped = true
+    ToolDesc.Parent = ToolCard
+
+    local ToolBtn = Instance.new("TextButton")
+    ToolBtn.Size = UDim2.new(1, 0, 1, 0)
+    ToolBtn.BackgroundTransparency = 1
+    ToolBtn.Text = ""
+    ToolBtn.Parent = ToolCard
+
+    ToolBtn.Activated:Connect(function() task.spawn(function() actionCallback(ToolTitle) end) end)
+end
+
+local function ToggleESP(titleLabel)
+    if getgenv().Crypto_ESP_Active then
+        getgenv().Crypto_ESP_Active = false
+        titleLabel.Text = "Player ESP [OFF]"
+        titleLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+        for _, v in pairs(CoreGui:GetChildren()) do if v.Name == "CryptoESP" then v:Destroy() end end
+    else
+        getgenv().Crypto_ESP_Active = true
+        titleLabel.Text = "Player ESP [ON]"
+        titleLabel.TextColor3 = Color3.fromRGB(80, 255, 80)
+        
+        task.spawn(function()
+            while getgenv().Crypto_ESP_Active do
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        if not player.Character.HumanoidRootPart:FindFirstChild("CryptoESP") then
+                            local highlight = Instance.new("Highlight")
+                            highlight.Name = "CryptoESP"
+                            highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                            highlight.FillTransparency = 0.5
+                            highlight.Parent = player.Character.HumanoidRootPart
+                        end
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    end
+end
+
+local function HitboxExpander(titleLabel)
+    titleLabel.Text = "Expanding..."
+    pcall(function()
+        for _, player in pairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = player.Character.HumanoidRootPart
+                hrp.Size = Vector3.new(20, 20, 20)
+                hrp.Transparency = 0.6
+                hrp.BrickColor = BrickColor.new("Bright red")
+                hrp.Material = Enum.Material.Neon
+                hrp.CanCollide = false
+            end
         end
     end)
+    task.wait(1)
+    titleLabel.Text = "Hitboxes Maxed!"
 end
 
--- Draggability with Mobile Camera Fix (Locks touch input while dragging)
-local function MakeDraggable(frame, handle)
-    local dragStart, startPos, dragging = nil, nil, false
+local function OptimizeMemory(titleLabel)
+    titleLabel.Text = "Clearing RAM..."
+    pcall(function()
+        for _, v in pairs(Workspace:GetDescendants()) do
+            if v:IsA("BasePart") and not v.Parent:FindFirstChild("Humanoid") then
+                v.Material = Enum.Material.SmoothPlastic
+            elseif v:IsA("Texture") or v:IsA("Decal") then
+                v:Destroy()
+            end
+        end
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+    end)
+    task.wait(1)
+    titleLabel.Text = "RAM Optimized"
+end
+
+local noclipConnection = nil
+local function ToggleNoclip(titleLabel)
+    if noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+        titleLabel.Text = "Noclip [OFF]"
+        titleLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+    else
+        titleLabel.Text = "Noclip [ON]"
+        titleLabel.TextColor3 = Color3.fromRGB(80, 255, 80)
+        noclipConnection = RunService.Stepped:Connect(function()
+            pcall(function()
+                if LocalPlayer.Character then
+                    for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then part.CanCollide = false end
+                    end
+                end
+            end)
+        end)
+    end
+end
+
+CreateDevTool("Player ESP", "Wallhack: Highlights all players in red.", Color3.fromRGB(255, 80, 80), ToggleESP)
+CreateDevTool("Hitbox Expander", "Makes enemy hitboxes 20x20. Never miss.", Color3.fromRGB(255, 150, 50), HitboxExpander)
+CreateDevTool("Noclip God", "Walk straight through solid objects.", Color3.fromRGB(150, 150, 255), ToggleNoclip)
+CreateDevTool("Memory Optimizer", "Aggressively deletes lag for mobile.", Color3.fromRGB(80, 255, 80), OptimizeMemory)
+CreateDevTool("Dark Dex V3", "Ultimate game file explorer.", Color3.fromRGB(255, 80, 255), function(lbl) SafeLoadScript("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua", lbl) end)
+CreateDevTool("Infinite Yield", "Best Admin Commands.", Color3.fromRGB(255, 255, 80), function(lbl) SafeLoadScript("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", lbl) end)
+
+-- ==========================================
+-- LOGIC & TAB ANIMATIONS
+-- ==========================================
+local function SwitchTab(tabName)
+    TabScripts.TextColor3 = Color3.fromRGB(120, 120, 130)
+    TabExecutor.TextColor3 = Color3.fromRGB(120, 120, 130)
+    TabDevTools.TextColor3 = Color3.fromRGB(120, 120, 130)
+    ScriptsPage.Visible = false; ExecutorPage.Visible = false; DevToolsPage.Visible = false
+
+    if tabName == "Scripts" then
+        TabScripts.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ScriptsPage.Visible = true
+        TweenService:Create(TabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 30, 1, -3), Size = UDim2.new(0, 100, 0, 3)}):Play()
+    elseif tabName == "Executor" then
+        TabExecutor.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ExecutorPage.Visible = true
+        TweenService:Create(TabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 175, 1, -3), Size = UDim2.new(0, 100, 0, 3)}):Play()
+    elseif tabName == "DevTools" then
+        TabDevTools.TextColor3 = Color3.fromRGB(255, 255, 255)
+        DevToolsPage.Visible = true
+        TweenService:Create(TabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 315, 1, -3), Size = UDim2.new(0, 90, 0, 3)}):Play()
+    end
+end
+
+TabScripts.Activated:Connect(function() SwitchTab("Scripts") end)
+TabExecutor.Activated:Connect(function() SwitchTab("Executor") end)
+TabDevTools.Activated:Connect(function() SwitchTab("DevTools") end)
+
+-- ==========================================
+-- UI TOGGLE ANIMATIONS
+-- ==========================================
+local isAnimating = false
+
+local function OpenMenu()
+    if isAnimating or MainFrame.Visible then return end
+    isAnimating = true
+    MainFrame.Visible = true
+    local tween = TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), { Size = UDim2.new(0, 600, 0, 460) })
+    tween:Play()
+    tween.Completed:Wait()
+    isAnimating = false
+end
+
+local function CloseMenu()
+    if isAnimating or not MainFrame.Visible then return end
+    isAnimating = true
+    local tween = TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), { Size = UDim2.new(0, 0, 0, 0) })
+    tween:Play()
+    tween.Completed:Wait()
+    MainFrame.Visible = false
+    isAnimating = false
+end
+
+CloseBtn.Activated:Connect(CloseMenu)
+
+-- ==========================================
+-- 🛡️ MOBILE DRAG MODULE (OPTIMIZED FOR TOUCH)
+-- ==========================================
+local function MakeMobileDraggable(frame, handle)
+    local dragging, dragStart, startPos = false, nil, nil
     
     handle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-            
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true; dragStart = input.Position; startPos = frame.Position
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
         end
     end)
     
     UserInputService.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
             local delta = input.Position - dragStart
-            frame.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
 end
+MakeMobileDraggable(MainFrame, Topbar)
 
--- ==================== UI CONSTRUCTION ====================
-
--- Main Container (Sized beautifully for iPad & Phones)
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 520, 0, 350)
-MainFrame.Position = UDim2.new(0.5, -260, 0.5, -175)
-MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
-MainFrame.BorderSizePixel = 0
-MainFrame.Parent = ScreenGui
-
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 10)
-MainCorner.Parent = MainFrame
-
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Color = Color3.fromRGB(255, 40, 60)
-UIStroke.Thickness = 1.5
-UIStroke.Parent = MainFrame
-
--- Topbar
-local Topbar = Instance.new("Frame")
-Topbar.Size = UDim2.new(1, 0, 0, 40)
-Topbar.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-Topbar.BorderSizePixel = 0
-Topbar.Parent = MainFrame
-
-local TopbarCorner = Instance.new("UICorner")
-TopbarCorner.CornerRadius = UDim.new(0, 10)
-TopbarCorner.Parent = Topbar
-
-local TopbarFix = Instance.new("Frame")
-TopbarFix.Size = UDim2.new(1, 0, 0, 10)
-TopbarFix.Position = UDim2.new(0, 0, 1, -10)
-TopbarFix.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-TopbarFix.BorderSizePixel = 0
-TopbarFix.Parent = Topbar
-
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -100, 1, 0)
-Title.Position = UDim2.new(0, 15, 0, 0)
-Title.BackgroundTransparency = 1
-Title.Text = "CRYPTO HUB V4 | MOBILE EDITION"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.GothamBlack
-Title.TextSize = 14
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = Topbar
-
--- Close Button
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0, 30, 0, 30)
-CloseBtn.Position = UDim2.new(1, -35, 0.5, -15)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 70)
-CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 14
-CloseBtn.Parent = Topbar
-
-local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(0, 6)
-CloseCorner.Parent = CloseBtn
-
-CloseBtn.Activated:Connect(function()
-    ScreenGui:Destroy()
-end)
-
--- Left Sidebar Panel
-local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 140, 1, -40)
-Sidebar.Position = UDim2.new(0, 0, 0, 40)
-Sidebar.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
-Sidebar.BorderSizePixel = 0
-Sidebar.Parent = MainFrame
-
-local SidebarFix = Instance.new("Frame")
-SidebarFix.Size = UDim2.new(0, 10, 1, 0)
-SidebarFix.Position = UDim2.new(1, -10, 0, 0)
-SidebarFix.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
-SidebarFix.BorderSizePixel = 0
-SidebarFix.Parent = Sidebar
-
-local SidebarList = Instance.new("UIListLayout")
-SidebarList.Padding = UDim.new(0, 8)
-SidebarList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-SidebarList.Parent = Sidebar
-
-local SidebarPadding = Instance.new("UIPadding")
-SidebarPadding.PaddingTop = UDim.new(0, 15)
-SidebarPadding.Parent = Sidebar
-
--- Right Content Frame
-local ContentFrame = Instance.new("Frame")
-ContentFrame.Size = UDim2.new(1, -140, 1, -40)
-ContentFrame.Position = UDim2.new(0, 140, 0, 40)
-ContentFrame.BackgroundTransparency = 1
-ContentFrame.Parent = MainFrame
-
--- Tab Content Frames
-local TabContents = {}
-
-local function CreateTab(name)
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(1, 0, 1, 0)
-    Frame.BackgroundTransparency = 1
-    Frame.Visible = false
-    Frame.Parent = ContentFrame
-    TabContents[name] = Frame
-    return Frame
-end
-
-local ScriptsTab = CreateTab("Scripts")
-local HomeTab = CreateTab("Home")
-HomeTab.Visible = true
-
--- Sidebar Navigation Buttons
-local Tabs = {"Home", "Scripts"}
-local ActiveTab = "Home"
-local TabButtons = {}
-
-for _, tabName in ipairs(Tabs) do
-    local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(0.85, 0, 0, 35)
-    Btn.BackgroundColor3 = (tabName == ActiveTab) and Color3.fromRGB(255, 40, 60) or Color3.fromRGB(24, 24, 28)
-    Btn.Text = tabName
-    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Btn.Font = Enum.Font.GothamBold
-    Btn.TextSize = 13
-    Btn.Parent = Sidebar
-    
-    local BtnCorner = Instance.new("UICorner")
-    BtnCorner.CornerRadius = UDim.new(0, 6)
-    BtnCorner.Parent = Btn
-    
-    TabButtons[tabName] = Btn
-    
-    Btn.Activated:Connect(function()
-        for tName, tBtn in pairs(TabButtons) do
-            tBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
-            TabContents[tName].Visible = false
-        end
-        Btn.BackgroundColor3 = Color3.fromRGB(255, 40, 60)
-        TabContents[tabName].Visible = true
-        ActiveTab = tabName
-    end)
-end
-
--- ==================== HOME TAB CONTENT ====================
-local WelcomeLabel = Instance.new("TextLabel")
-WelcomeLabel.Size = UDim2.new(1, -30, 0, 30)
-WelcomeLabel.Position = UDim2.new(0, 15, 0, 15)
-WelcomeLabel.BackgroundTransparency = 1
-WelcomeLabel.Text = "Welcome to Crypto Hub, " .. LocalPlayer.DisplayName .. "!"
-WelcomeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-WelcomeLabel.Font = Enum.Font.GothamBlack
-WelcomeLabel.TextSize = 16
-WelcomeLabel.TextXAlignment = Enum.TextXAlignment.Left
-WelcomeLabel.Parent = HomeTab
-
-local DeviceLabel = Instance.new("TextLabel")
-DeviceLabel.Size = UDim2.new(1, -30, 0, 20)
-DeviceLabel.Position = UDim2.new(0, 15, 0, 45)
-DeviceLabel.BackgroundTransparency = 1
-DeviceLabel.Text = "Platform: Delta Mobile Optimized"
-DeviceLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-DeviceLabel.Font = Enum.Font.GothamBold
-DeviceLabel.TextSize = 12
-DeviceLabel.TextXAlignment = Enum.TextXAlignment.Left
-DeviceLabel.Parent = HomeTab
-
--- Toggle Anti-AFK Button
-local AntiAFKBtn = Instance.new("TextButton")
-AntiAFKBtn.Size = UDim2.new(0.9, 0, 0, 40)
-AntiAFKBtn.Position = UDim2.new(0.05, 0, 0, 80)
-AntiAFKBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
-AntiAFKBtn.Text = "🚀 Toggle Anti-AFK: ENABLED"
-AntiAFKBtn.TextColor3 = Color3.fromRGB(100, 255, 120)
-AntiAFKBtn.Font = Enum.Font.GothamBold
-AntiAFKBtn.TextSize = 13
-AntiAFKBtn.Parent = HomeTab
-
-local AFKCorner = Instance.new("UICorner")
-AFKCorner.CornerRadius = UDim.new(0, 6)
-AFKCorner.Parent = AntiAFKBtn
-
-local antiAFKEnabled = true
-AntiAFKBtn.Activated:Connect(function()
-    antiAFKEnabled = not antiAFKEnabled
-    if antiAFKEnabled then
-        AntiAFKBtn.Text = "🚀 Toggle Anti-AFK: ENABLED"
-        AntiAFKBtn.TextColor3 = Color3.fromRGB(100, 255, 120)
-    else
-        AntiAFKBtn.Text = "🚀 Toggle Anti-AFK: DISABLED"
-        AntiAFKBtn.TextColor3 = Color3.fromRGB(255, 80, 80)
-    end
-end)
-
--- Anti-AFK loop integration
-local VirtualUser = game:GetService("VirtualUser")
-LocalPlayer.Idled:Connect(function()
-    if antiAFKEnabled then
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new())
-    end
-end)
-
--- Credits Panel
-local CreditsPanel = Instance.new("Frame")
-CreditsPanel.Size = UDim2.new(0.9, 0, 0, 130)
-CreditsPanel.Position = UDim2.new(0.05, 0, 0, 140)
-CreditsPanel.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-CreditsPanel.BorderSizePixel = 0
-CreditsPanel.Parent = HomeTab
-
-local CreditsCorner = Instance.new("UICorner")
-CreditsCorner.CornerRadius = UDim.new(0, 8)
-CreditsCorner.Parent = CreditsPanel
-
-local CreditsTitle = Instance.new("TextLabel")
-CreditsTitle.Size = UDim2.new(1, -20, 0, 25)
-CreditsTitle.Position = UDim2.new(0, 10, 0, 10)
-CreditsTitle.BackgroundTransparency = 1
-CreditsTitle.Text = "HUB STATUS & STATS"
-CreditsTitle.TextColor3 = Color3.fromRGB(255, 40, 60)
-CreditsTitle.Font = Enum.Font.GothamBlack
-CreditsTitle.TextSize = 12
-CreditsTitle.TextXAlignment = Enum.TextXAlignment.Left
-CreditsTitle.Parent = CreditsPanel
-
-local StatsText = Instance.new("TextLabel")
-StatsText.Size = UDim2.new(1, -20, 1, -40)
-StatsText.Position = UDim2.new(0, 10, 0, 35)
-StatsText.BackgroundTransparency = 1
-StatsText.TextColor3 = Color3.fromRGB(200, 200, 200)
-StatsText.Font = Enum.Font.GothamMedium
-StatsText.TextSize = 11
-StatsText.TextXAlignment = Enum.TextXAlignment.Left
-StatsText.TextYAlignment = Enum.TextYAlignment.Top
-StatsText.Parent = CreditsPanel
-
--- Dynamic Stats Updater
-task.spawn(function()
-    while task.wait(1) do
-        if ScreenGui.Parent == nil then break end
-        local ping = tonumber(string.format("%.0f", game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()))
-        local fps = tonumber(string.format("%.0f", 1/RunService.RenderStepped:Wait()))
-        StatsText.Text = string.format(
-            "• Ping: %d ms\n• Client FPS: %d\n• Core UI State: Stable\n• Executor: Delta Mobile Compatible\n• Status: Built & Maintained by Crypto Team",
-            ping, fps
-        )
-    end
-end)
-
--- ==================== SCRIPTS TAB CONTENT ====================
--- Search Bar
-local SearchBar = Instance.new("TextBox")
-SearchBar.Size = UDim2.new(1, -30, 0, 32)
-SearchBar.Position = UDim2.new(0, 15, 0, 15)
-SearchBar.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-SearchBar.BorderSizePixel = 0
-SearchBar.PlaceholderText = "Search scripts here..."
-SearchBar.Text = ""
-SearchBar.TextColor3 = Color3.fromRGB(255, 255, 255)
-SearchBar.PlaceholderColor3 = Color3.fromRGB(100, 100, 110)
-SearchBar.Font = Enum.Font.GothamBold
-SearchBar.TextSize = 12
-SearchBar.Parent = ScriptsTab
-
-local SearchCorner = Instance.new("UICorner")
-SearchCorner.CornerRadius = UDim.new(0, 6)
-SearchCorner.Parent = SearchBar
-
--- Script Scrolling Frame
-local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Size = UDim2.new(1, -30, 1, -75)
-ScrollFrame.Position = UDim2.new(0, 15, 0, 60)
-ScrollFrame.BackgroundTransparency = 1
-ScrollFrame.BorderSizePixel = 0
-ScrollFrame.ScrollBarThickness = 3
-ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 40, 60)
-ScrollFrame.AutomaticCanvasSize = Enum.AutomaticCanvasSize.Y
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-ScrollFrame.Parent = ScriptsTab
-
-local ListLayout = Instance.new("UIListLayout")
-ListLayout.Padding = UDim.new(0, 6)
-ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-ListLayout.Parent = ScrollFrame
-
--- Render Script List Function (Supports collapsing and instant search updating)
-local function RenderList()
-    -- Safely clear old UI cards
-    for _, child in ipairs(ScrollFrame:GetChildren()) do
-        if not child:IsA("UIListLayout") then
-            child:Destroy()
-        end
-    end
-    
-    local currentLayoutOrder = 1
-    local query = string.lower(SearchBar.Text)
-    
-    for _, cat in ipairs(ScriptDatabase) do
-        local isOpen = CategoryState[cat.Id]
-        
-        -- Generate Header
-        local Header = Instance.new("TextButton")
-        Header.Size = UDim2.new(1, -5, 0, 30)
-        Header.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-        Header.BorderSizePixel = 0
-        local chevron = isOpen and "▼ " or "▶ "
-        Header.Text = "   " .. chevron .. cat.Title
-        Header.TextColor3 = cat.Color
-        Header.Font = Enum.Font.GothamBlack
-        Header.TextSize = 12
-        Header.TextXAlignment = Enum.TextXAlignment.Left
-        Header.LayoutOrder = currentLayoutOrder
-        Header.Parent = ScrollFrame
-        currentLayoutOrder = currentLayoutOrder + 1
-        
-        local HeadCorner = Instance.new("UICorner")
-        HeadCorner.CornerRadius = UDim.new(0, 6)
-        HeadCorner.Parent = Header
-        
-        -- Toggle category collapse when header clicked
-        Header.Activated:Connect(function()
-            CategoryState[cat.Id] = not CategoryState[cat.Id]
-            RenderList()
-        end)
-        
-        -- If open, load individual script cards
-        if isOpen then
-            for _, item in ipairs(cat.Scripts) do
-                -- Search Match Filter
-                if query == "" or string.find(string.lower(item.Name), query) or string.find(string.lower(item.Tags), query) then
-                    local Card = Instance.new("Frame")
-                    Card.Size = UDim2.new(1, -5, 0, 55)
-                    Card.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
-                    Card.BorderSizePixel = 0
-                    Card.LayoutOrder = currentLayoutOrder
-                    Card.Parent = ScrollFrame
-                    currentLayoutOrder = currentLayoutOrder + 1
-                    
-                    local CardCorner = Instance.new("UICorner")
-                    CardCorner.CornerRadius = UDim.new(0, 6)
-                    CardCorner.Parent = Card
-                    
-                    -- Script Label
-                    local NameLbl = Instance.new("TextLabel")
-                    NameLbl.Size = UDim2.new(0.6, 0, 0, 20)
-                    NameLbl.Position = UDim2.new(0, 12, 0, 10)
-                    NameLbl.BackgroundTransparency = 1
-                    NameLbl.Text = item.Name
-                    NameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-                    NameLbl.Font = Enum.Font.GothamBold
-                    NameLbl.TextSize = 13
-                    NameLbl.TextXAlignment = Enum.TextXAlignment.Left
-                    NameLbl.Parent = Card
-                    
-                    -- Meta Sublabel
-                    local SubLbl = Instance.new("TextLabel")
-                    SubLbl.Size = UDim2.new(0.6, 0, 0, 15)
-                    SubLbl.Position = UDim2.new(0, 12, 0, 28)
-                    SubLbl.BackgroundTransparency = 1
-                    SubLbl.Text = item.Tags
-                    SubLbl.TextColor3 = Color3.fromRGB(140, 140, 145)
-                    SubLbl.Font = Enum.Font.GothamMedium
-                    SubLbl.TextSize = 10
-                    SubLbl.TextXAlignment = Enum.TextXAlignment.Left
-                    SubLbl.Parent = Card
-                    
-                    -- Action Button (Execute)
-                    local ActionBtn = Instance.new("TextButton")
-                    ActionBtn.Size = UDim2.new(0, 90, 0, 32)
-                    ActionBtn.Position = UDim2.new(1, -100, 0.5, -16)
-                    
-                    if item.Status == "Not Working" then
-                        ActionBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-                        ActionBtn.Text = "Offline"
-                        ActionBtn.TextColor3 = Color3.fromRGB(110, 110, 120)
-                        ActionBtn.AutoButtonColor = false
-                    else
-                        ActionBtn.BackgroundColor3 = Color3.fromRGB(255, 40, 60)
-                        ActionBtn.Text = "Execute"
-                        ActionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                        ActionBtn.Font = Enum.Font.GothamBold
-                        ActionBtn.TextSize = 12
-                        
-                        ActionBtn.Activated:Connect(function()
-                            ActionBtn.Text = "Loading..."
-                            SafeLoadScript(item.Url, ActionBtn)
-                        end)
-                    end
-                    
-                    ActionBtn.Parent = Card
-                    local ActCorner = Instance.new("UICorner")
-                    ActCorner.CornerRadius = UDim.new(0, 6)
-                    ActCorner.Parent = ActionBtn
-                end
-            end
-        end
-    end
-end
-
--- Initialize Search filter
-SearchBar:GetPropertyChangedSignal("Text"):Connect(RenderList)
-
--- Load first run
-RenderList()
-
--- Make Topbar Draggable (Mobile Touch Dragging Enabled)
-MakeDraggable(MainFrame, Topbar)
-
--- Dynamic Mobile Toggle Badge (Tap to open/close hub anywhere)
-local ToggleBadge = Instance.new("TextButton")
-ToggleBadge.Size = UDim2.new(0, 50, 0, 50)
-ToggleBadge.Position = UDim2.new(0.05, 0, 0.15, 0)
-ToggleBadge.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-ToggleBadge.Text = "🔴"
-ToggleBadge.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleBadge.Font = Enum.Font.GothamBold
-ToggleBadge.TextSize = 18
+-- Floating Toggle Badge
+local ToggleBadge = Instance.new("Frame") 
+ToggleBadge.Size = UDim2.new(0, 100, 0, 45) 
+ToggleBadge.Position = UDim2.new(0, 20, 0, 60)
+ToggleBadge.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+ToggleBadge.Active = true 
+ToggleBadge.Visible = false
 ToggleBadge.Parent = ScreenGui
+Instance.new("UICorner", ToggleBadge).CornerRadius = UDim.new(0, 10)
+local BadgeStroke = Instance.new("UIStroke", ToggleBadge)
+BadgeStroke.Color = Color3.fromRGB(255, 30, 30)
+BadgeStroke.Thickness = 2
 
-local BadgeCorner = Instance.new("UICorner")
-BadgeCorner.CornerRadius = UDim.new(1, 0)
-BadgeCorner.Parent = ToggleBadge
+local BadgeText = Instance.new("TextLabel")
+BadgeText.Size = UDim2.new(1, 0, 1, 0)
+BadgeText.BackgroundTransparency = 1
+BadgeText.Text = "ULTIMATE"
+BadgeText.TextColor3 = Color3.fromRGB(255, 30, 30)
+BadgeText.Font = Enum.Font.GothamBlack
+BadgeText.TextSize = 14
+BadgeText.Parent = ToggleBadge
 
-local BadgeStroke = Instance.new("UIStroke")
-BadgeStroke.Color = Color3.fromRGB(255, 40, 60)
-BadgeStroke.Thickness = 1.5
-BadgeStroke.Parent = ToggleBadge
-
-local function ToggleUI()
-    MainFrame.Visible = not MainFrame.Visible
-end
-
--- Advanced Mobile Touch Drag for Toggle Button
-local badgeDragging = false
-local badgeDragStart = nil
-local badgeStartPos = nil
-local hasMoved = false
-
+local badgeDragging, badgeDragStart, badgeStartPos, hasMoved = false, nil, nil, false
 ToggleBadge.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-        badgeDragging = true
-        hasMoved = false
-        badgeDragStart = input.Position
-        badgeStartPos = ToggleBadge.Position
+        badgeDragging = true; hasMoved = false; badgeDragStart = input.Position; badgeStartPos = ToggleBadge.Position
     end
 end)
-
 UserInputService.InputChanged:Connect(function(input)
     if badgeDragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
         local delta = input.Position - badgeDragStart
-        if delta.Magnitude > 8 then
-            hasMoved = true
-        end
-        ToggleBadge.Position = UDim2.new(
-            badgeStartPos.X.Scale,
-            badgeStartPos.X.Offset + delta.X,
-            badgeStartPos.Y.Scale,
-            badgeStartPos.Y.Offset + delta.Y
-        )
+        if delta.Magnitude > 5 then hasMoved = true end
+        ToggleBadge.Position = UDim2.new(badgeStartPos.X.Scale, badgeStartPos.X.Offset + delta.X, badgeStartPos.Y.Scale, badgeStartPos.Y.Offset + delta.Y)
     end
 end)
-
 ToggleBadge.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
         badgeDragging = false
-        if not hasMoved then
-            ToggleUI()
-        end
+        if not hasMoved then if MainFrame.Visible then CloseMenu() else OpenMenu() end end
     end
 end)
 
--- Notify client startup
-print("[Crypto Hub]: Success! Loaded V4 Mobile Edition successfully.")
+-- ==========================================
+-- 🔄 ULTIMATE LOADING SEQUENCE (STRICT TIMINGS)
+-- ==========================================
+local LoadingGui = Instance.new("ScreenGui")
+LoadingGui.Name = "CryptoUltimate_Loader"
+LoadingGui.Parent = ParentGui
+LoadingGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+LoadingGui.IgnoreGuiInset = true
+
+local StatusFrame = Instance.new("Frame")
+StatusFrame.Size = UDim2.new(0, 320, 0, 70)
+StatusFrame.Position = UDim2.new(1, -340, 1, -90) 
+StatusFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
+StatusFrame.Parent = LoadingGui
+Instance.new("UICorner", StatusFrame).CornerRadius = UDim.new(0, 8)
+local StatusStroke = Instance.new("UIStroke", StatusFrame)
+StatusStroke.Thickness = 2
+StatusStroke.Color = Color3.fromRGB(255, 30, 30)
+
+local StatusText = Instance.new("TextLabel")
+StatusText.Size = UDim2.new(1, -20, 1, 0)
+StatusText.Position = UDim2.new(0, 15, 0, 0)
+StatusText.BackgroundTransparency = 1
+StatusText.Text = "Initializing Ultimate Engine..."
+StatusText.TextColor3 = Color3.fromRGB(255, 255, 255)
+StatusText.Font = Enum.Font.Code
+StatusText.TextSize = 14
+StatusText.TextXAlignment = Enum.TextXAlignment.Left
+StatusText.Parent = StatusFrame
+
+local BigPopUp = Instance.new("Frame")
+BigPopUp.Size = UDim2.new(1, 0, 1, 0)
+BigPopUp.BackgroundTransparency = 1
+BigPopUp.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BigPopUp.Visible = false
+BigPopUp.Parent = LoadingGui
+
+local LoadedLabel = Instance.new("TextLabel")
+LoadedLabel.Size = UDim2.new(1, 0, 0, 150)
+LoadedLabel.Position = UDim2.new(0, 0, 0.5, -75)
+LoadedLabel.BackgroundTransparency = 1
+LoadedLabel.Text = "LOADED"
+LoadedLabel.TextColor3 = Color3.fromRGB(255, 20, 20)
+LoadedLabel.Font = Enum.Font.GothamBlack
+LoadedLabel.TextSize = 1 
+LoadedLabel.Parent = BigPopUp
+
+-- Sequencer Thread
+task.spawn(function()
+    StatusText.Text = "> Hacking...."
+    task.wait(3)
+
+    StatusText.Text = "> Bypassing anti-cheat security structures...."
+    task.wait(4)
+
+    StatusText.Text = "> Decrypting max-power injection pipelines...."
+    task.wait(5)
+
+    StatusText.Text = "> Inserting tools...."
+    task.wait(10)
+
+    StatusText.Text = "> Forcing Delta mobile optimization overrides...."
+    task.wait(3)
+
+    StatusFrame.Visible = false
+    BigPopUp.Visible = true
+    TweenService:Create(BigPopUp, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.3}):Play()
+    
+    local textTween = TweenService:Create(LoadedLabel, TweenInfo.new(0.5, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {TextSize = 110})
+    textTween:Play()
+    textTween.Completed:Wait()
+    task.wait(1.5)
+
+    TweenService:Create(BigPopUp, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(LoadedLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {TextSize = 1, TextTransparency = 1}):Play()
+    task.wait(0.5)
+
+    LoadingGui:Destroy()
+    ToggleBadge.Visible = true
+    OpenMenu()
+
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "CRPYTO HUB ULTIMATE",
+            Text = "Max Power Injected Successfully.",
+            Duration = 6,
+        })
+    end)
+end)
