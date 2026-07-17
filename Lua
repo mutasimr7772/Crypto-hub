@@ -1,4 +1,4 @@
--- [[ CRYPTO HUB V8.4: DELTA MOBILE OPTIMIZED ]] --
+-- [[ CRYPTO HUB V3: DELTA MOBILE FINAL BUILD ]] --
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -6,6 +6,8 @@ local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
 local VirtualUser = game:GetService("VirtualUser")
 local CoreGui = game:GetService("CoreGui")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 
 -- ==========================================
@@ -26,10 +28,8 @@ end)
 local function SafeLoadScript(url, btn)
     local success, result = false, nil
     
-    -- Attempt 1: Standard HttpGet
     success, result = pcall(function() return game:HttpGet(url) end)
     
-    -- Attempt 2: Delta/Mobile native request fallback
     if not success or not result then
         local req = (request or http_request or (http and http.request))
         if req then
@@ -55,13 +55,23 @@ local function SafeLoadScript(url, btn)
 end
 
 -- ===================================================================== --
--- ⚙️ SCRIPT LIBRARY ⚙️
+-- ⚙️ SCRIPT DATABASE ⚙️
 -- ===================================================================== --
 local MyScripts = {
-    {Name = "HoHo Hub (Blox Fruits)", Tags = "Auto-Farm / OP", Url = "https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI"},
-    {Name = "Gravity Hub", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/Dev-GravityHub/BloxFruit/refs/heads/main/Main.lua"},
-    {Name = "Speed Hub X", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"},
-    {Name = "Redz Hub", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"}
+    -- Category 1: Working & Keyless
+    {Header = "🟢 WORKING - KEYLESS", Color = Color3.fromRGB(80, 255, 120)},
+    {Name = "Redz Hub", Tags = "Blox Fruits | Universal", Url = "https://rawscripts.net/raw/Universal-Script-Redz-hub-205954", Status = "Working"},
+    {Name = "Gravity Hub", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/Dev-GravityHub/BloxFruit/refs/heads/main/Main.lua", Status = "Working"},
+
+    -- Category 2: Working & Key Required
+    {Header = "🔑 WORKING - KEY REQUIRED", Color = Color3.fromRGB(255, 200, 50)},
+    {Name = "HoHo Hub (Blox Fruits)", Tags = "Auto-Farm / OP", Url = "https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI", Status = "Working"},
+    {Name = "Speed Hub X", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", Status = "Working"},
+
+    -- Category 3: Patched / Not Working
+    {Header = "🔴 PATCHED / NOT WORKING", Color = Color3.fromRGB(255, 80, 80)},
+    {Name = "Nero Hub", Tags = "Mythic Fruit Finder", Url = "https://raw.githubusercontent.com/NeroHubClub/AutoMythicFruitFinder/refs/heads/main/NeroHubFruitFinder", Status = "Not Working"},
+    {Name = "Teddy Hub", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua", Status = "Not Working"}
 }
 
 -- ==========================================
@@ -86,7 +96,7 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 ScreenGui.IgnoreGuiInset = true 
 
 -- ==========================================
--- MAIN INTERFACE FRAME
+-- MAIN INTERFACE FRAME (V3)
 -- ==========================================
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 0, 0, 0)
@@ -124,7 +134,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(0, 300, 1, 0)
 Title.Position = UDim2.new(0, 20, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "CRYPTO HUB <font color='rgb(255, 40, 60)'>V8.4</font>"
+Title.Text = "CRYPTO HUB <font color='rgb(255, 40, 60)'>V3</font>"
 Title.RichText = true
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBlack
@@ -202,11 +212,32 @@ DevToolsPage.Visible = false
 DevToolsPage.Parent = MainFrame
 
 -- ==========================================
--- PAGE 1: SCRIPTS LIBRARY
+-- PAGE 1: SCRIPTS LIBRARY & SEARCH FUNCTION
 -- ==========================================
+local SearchBar = Instance.new("TextBox")
+SearchBar.Size = UDim2.new(1, -30, 0, 35)
+SearchBar.Position = UDim2.new(0, 15, 0, 10)
+SearchBar.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
+SearchBar.Text = ""
+SearchBar.PlaceholderText = "🔍 Search scripts..."
+SearchBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+SearchBar.PlaceholderColor3 = Color3.fromRGB(120, 120, 130)
+SearchBar.Font = Enum.Font.GothamMedium
+SearchBar.TextSize = 13
+SearchBar.Parent = ScriptsPage
+
+Instance.new("UICorner", SearchBar).CornerRadius = UDim.new(0, 8)
+local SearchStroke = Instance.new("UIStroke")
+SearchStroke.Thickness = 1
+SearchStroke.Color = Color3.fromRGB(35, 35, 45)
+SearchStroke.Parent = SearchBar
+
+SearchBar.Focused:Connect(function() SearchStroke.Color = Color3.fromRGB(255, 40, 60) end)
+SearchBar.FocusLost:Connect(function() SearchStroke.Color = Color3.fromRGB(35, 35, 45) end)
+
 local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Size = UDim2.new(1, -30, 1, -10)
-ScrollFrame.Position = UDim2.new(0, 15, 0, 10)
+ScrollFrame.Size = UDim2.new(1, -30, 1, -60)
+ScrollFrame.Position = UDim2.new(0, 15, 0, 55)
 ScrollFrame.BackgroundTransparency = 1
 ScrollFrame.ScrollBarThickness = 4
 ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 40, 60)
@@ -221,53 +252,138 @@ UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y + 20)
 end)
 
+local CardList = {}
+
 for _, item in ipairs(MyScripts) do
-    local Card = Instance.new("Frame")
-    Card.Size = UDim2.new(1, -10, 0, 65)
-    Card.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-    Card.Parent = ScrollFrame
-    Instance.new("UICorner", Card).CornerRadius = UDim.new(0, 8)
+    if item.Header then
+        local HeaderLabel = Instance.new("TextLabel")
+        HeaderLabel.Size = UDim2.new(1, -10, 0, 25)
+        HeaderLabel.BackgroundTransparency = 1
+        HeaderLabel.Text = item.Header
+        HeaderLabel.TextColor3 = item.Color
+        HeaderLabel.Font = Enum.Font.GothamBlack
+        HeaderLabel.TextSize = 11
+        HeaderLabel.TextXAlignment = Enum.TextXAlignment.Left
+        HeaderLabel.Parent = ScrollFrame
+        
+        local Padding = Instance.new("UIPadding")
+        Padding.PaddingLeft = UDim.new(0, 5)
+        Padding.Parent = HeaderLabel
+    else
+        local Card = Instance.new("Frame")
+        Card.Size = UDim2.new(1, -10, 0, 65)
+        Card.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+        Card.Parent = ScrollFrame
+        Instance.new("UICorner", Card).CornerRadius = UDim.new(0, 8)
 
-    local Lbl = Instance.new("TextLabel")
-    Lbl.Size = UDim2.new(0, 200, 0, 20)
-    Lbl.Position = UDim2.new(0, 15, 0, 12)
-    Lbl.BackgroundTransparency = 1
-    Lbl.Text = item.Name
-    Lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Lbl.Font = Enum.Font.GothamBold
-    Lbl.TextSize = 14
-    Lbl.TextXAlignment = Enum.TextXAlignment.Left
-    Lbl.Parent = Card
-    
-    local TagLbl = Instance.new("TextLabel")
-    TagLbl.Size = UDim2.new(0, 100, 0, 15)
-    TagLbl.Position = UDim2.new(0, 15, 0, 35)
-    TagLbl.BackgroundTransparency = 1
-    TagLbl.Text = item.Tags
-    TagLbl.TextColor3 = Color3.fromRGB(100, 255, 120)
-    TagLbl.Font = Enum.Font.GothamMedium
-    TagLbl.TextSize = 11
-    TagLbl.TextXAlignment = Enum.TextXAlignment.Left
-    TagLbl.Parent = Card
-    
-    local ExecBtn = Instance.new("TextButton")
-    ExecBtn.Size = UDim2.new(0, 100, 0, 35)
-    ExecBtn.Position = UDim2.new(1, -115, 0.5, -17)
-    ExecBtn.BackgroundColor3 = Color3.fromRGB(255, 40, 60)
-    ExecBtn.Text = "Execute"
-    ExecBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ExecBtn.Font = Enum.Font.GothamBold
-    ExecBtn.TextSize = 13
-    ExecBtn.Parent = Card
-    Instance.new("UICorner", ExecBtn).CornerRadius = UDim.new(0, 6)
+        local NameValue = Instance.new("StringValue")
+        NameValue.Name = "ScriptName"
+        NameValue.Value = item.Name
+        NameValue.Parent = Card
 
-    ExecBtn.Activated:Connect(function()
-        ExecBtn.Text = "Loading..."
-        task.spawn(function()
-            SafeLoadScript(item.Url, ExecBtn) 
+        local Lbl = Instance.new("TextLabel")
+        Lbl.Size = UDim2.new(0, 200, 0, 20)
+        Lbl.Position = UDim2.new(0, 15, 0, 12)
+        Lbl.BackgroundTransparency = 1
+        Lbl.Text = item.Name
+        Lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Lbl.Font = Enum.Font.GothamBold
+        Lbl.TextSize = 14
+        Lbl.TextXAlignment = Enum.TextXAlignment.Left
+        Lbl.Parent = Card
+        
+        local TagColor = Color3.fromRGB(150, 150, 150)
+        local StatusLabelText = "• ACTIVE"
+        if item.Status == "Not Working" then
+            TagColor = Color3.fromRGB(255, 80, 80)
+            StatusLabelText = "• PATCHED"
+        else
+            TagColor = Color3.fromRGB(100, 255, 120)
+        end
+        
+        local TagLbl = Instance.new("TextLabel")
+        TagLbl.Size = UDim2.new(0, 220, 0, 15)
+        TagLbl.Position = UDim2.new(0, 15, 0, 35)
+        TagLbl.BackgroundTransparency = 1
+        TagLbl.Text = item.Tags .. "  " .. StatusLabelText
+        TagLbl.TextColor3 = TagColor
+        TagLbl.Font = Enum.Font.GothamMedium
+        TagLbl.TextSize = 11
+        TagLbl.TextXAlignment = Enum.TextXAlignment.Left
+        TagLbl.Parent = Card
+        
+        local ExecBtn = Instance.new("TextButton")
+        ExecBtn.Size = UDim2.new(0, 90, 0, 35)
+        ExecBtn.Position = UDim2.new(1, -105, 0.5, -17)
+        
+        if item.Status == "Not Working" then
+            ExecBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+            ExecBtn.Text = "Offline"
+            ExecBtn.TextColor3 = Color3.fromRGB(100, 100, 110)
+            ExecBtn.AutoButtonColor = false
+        else
+            ExecBtn.BackgroundColor3 = Color3.fromRGB(255, 40, 60)
+            ExecBtn.Text = "Execute"
+            ExecBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        end
+        
+        ExecBtn.Font = Enum.Font.GothamBold
+        ExecBtn.TextSize = 13
+        ExecBtn.Parent = Card
+        Instance.new("UICorner", ExecBtn).CornerRadius = UDim.new(0, 6)
+
+        -- Copy Link Button (Clipboard)
+        local CopyBtn = Instance.new("TextButton")
+        CopyBtn.Size = UDim2.new(0, 35, 0, 35)
+        CopyBtn.Position = UDim2.new(1, -148, 0.5, -17)
+        CopyBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+        CopyBtn.Text = "📋"
+        CopyBtn.TextColor3 = Color3.fromRGB(200, 200, 210)
+        CopyBtn.Font = Enum.Font.GothamBold
+        CopyBtn.TextSize = 14
+        CopyBtn.Parent = Card
+        Instance.new("UICorner", CopyBtn).CornerRadius = UDim.new(0, 6)
+
+        CopyBtn.Activated:Connect(function()
+            local clippy = (setclipboard or to_clipboard or syn and syn.write_clipboard)
+            if clippy then
+                clippy(item.Url)
+                CopyBtn.Text = "✅"
+                task.wait(1.5)
+                CopyBtn.Text = "📋"
+            else
+                CopyBtn.Text = "❌"
+                task.wait(1.5)
+                CopyBtn.Text = "📋"
+            end
         end)
-    end)
+
+        if item.Status == "Working" then
+            ExecBtn.Activated:Connect(function()
+                ExecBtn.Text = "Loading..."
+                task.spawn(function()
+                    SafeLoadScript(item.Url, ExecBtn) 
+                end)
+            end)
+        end
+        table.insert(CardList, Card)
+    end
 end
+
+-- Filtering logic
+SearchBar:GetPropertyChangedSignal("Text"):Connect(function()
+    local q = string.lower(SearchBar.Text)
+    for _, card in ipairs(CardList) do
+        local val = card:FindFirstChild("ScriptName")
+        if val then
+            if string.find(string.lower(val.Value), q) then
+                card.Visible = true
+            else
+                card.Visible = false
+            end
+        end
+    end
+end)
 
 -- ==========================================
 -- PAGE 2: CUSTOM EXECUTOR
@@ -376,10 +492,8 @@ local function CreateDevTool(name, desc, color, actionCallback)
     end)
 end
 
--- URL execution wrapper for standard Dev Tools
 local function ExecURL(url) return function() SafeLoadScript(url, nil) end end
 
--- NEW: Mobile FPS Booster Logic
 local function BoostFPS()
     pcall(function()
         local Lighting = game:GetService("Lighting")
@@ -474,30 +588,32 @@ CloseBtn.Activated:Connect(CloseMenu)
 -- 🛡️ SYSTEM 4: OUT-OF-BOUNDS SAFE DRAGGING
 -- ==========================================
 local function ClampToScreen(position, size)
-    local screenSize = workspace.CurrentCamera.ViewportSize
-    local x = math.clamp(position.X.Offset, 0, screenSize.X - size.X.Offset)
-    local y = math.clamp(position.Y.Offset, 0, screenSize.Y - size.Y.Offset)
+    local screen = workspace.CurrentCamera
+    local screenSize = screen and screen.ViewportSize or Vector2.new(1920, 1080)
+    
+    local x = math.clamp(position.X.Offset, 0, math.max(0, screenSize.X - size.X.Offset))
+    local y = math.clamp(position.Y.Offset, 0, math.max(0, screenSize.Y - size.Y.Offset))
     return UDim2.new(position.X.Scale, x, position.Y.Scale, y)
 end
 
 -- Floating Badge
 local ToggleBadge = Instance.new("Frame") 
-ToggleBadge.Size = UDim2.new(0, 55, 0, 55)
+ToggleBadge.Size = UDim2.new(0, 85, 0, 40) 
 ToggleBadge.Position = UDim2.new(0, 20, 0, 60)
 ToggleBadge.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 ToggleBadge.Active = true
 ToggleBadge.Visible = true
 ToggleBadge.Parent = ScreenGui
-Instance.new("UICorner", ToggleBadge).CornerRadius = UDim.new(0, 15)
+Instance.new("UICorner", ToggleBadge).CornerRadius = UDim.new(0, 10)
 Instance.new("UIStroke", ToggleBadge).Color = Color3.fromRGB(255, 40, 60)
 
 local BadgeText = Instance.new("TextLabel")
 BadgeText.Size = UDim2.new(1, 0, 1, 0)
 BadgeText.BackgroundTransparency = 1
-BadgeText.Text = "CH"
+BadgeText.Text = "CRYPTO"
 BadgeText.TextColor3 = Color3.fromRGB(255, 40, 60)
 BadgeText.Font = Enum.Font.GothamBlack
-BadgeText.TextSize = 18
+BadgeText.TextSize = 14
 BadgeText.Parent = ToggleBadge
 
 local badgeDragging, badgeDragStart, badgeStartPos, hasMoved = false, nil, nil, false
@@ -542,7 +658,6 @@ UserInputService.InputChanged:Connect(function(input)
     if menuDragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
         local delta = input.Position - menuDragStart
         local newPos = UDim2.new(menuStartPos.X.Scale, menuStartPos.X.Offset + delta.X, menuStartPos.Y.Scale, menuStartPos.Y.Offset + delta.Y)
-        -- No clamping for main UI so you can move it mostly out of the way, but anchor points keep it safe.
         MainFrame.Position = newPos
     end
 end)
@@ -553,14 +668,223 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- Execute Start Animation
+-- ==========================================
+-- 📊 SYSTEM 5: DYNAMIC AUTOMATIC SERVER INFO UI
+-- ==========================================
+local ServerInfoFrame = Instance.new("Frame")
+ServerInfoFrame.Size = UDim2.new(0, 280, 0, 230) -- Height extended to fit quick utility actions
+ServerInfoFrame.Position = UDim2.new(1, -300, 1, -270) 
+ServerInfoFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+ServerInfoFrame.ClipsDescendants = true
+ServerInfoFrame.Parent = ScreenGui
+
+local InfoCorner = Instance.new("UICorner", ServerInfoFrame)
+InfoCorner.CornerRadius = UDim.new(0, 10)
+
+local InfoStroke = Instance.new("UIStroke")
+InfoStroke.Thickness = 1.5
+InfoStroke.Color = Color3.fromRGB(255, 40, 60)
+InfoStroke.Parent = ServerInfoFrame
+
+local InfoTopbar = Instance.new("Frame")
+InfoTopbar.Size = UDim2.new(1, 0, 0, 30)
+InfoTopbar.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+InfoTopbar.BorderSizePixel = 0
+InfoTopbar.Parent = ServerInfoFrame
+
+local InfoTitle = Instance.new("TextLabel")
+InfoTitle.Size = UDim2.new(1, -40, 1, 0)
+InfoTitle.Position = UDim2.new(0, 10, 0, 0)
+InfoTitle.BackgroundTransparency = 1
+InfoTitle.Text = "SYSTEM INFO"
+InfoTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+InfoTitle.Font = Enum.Font.GothamBold
+InfoTitle.TextSize = 12
+InfoTitle.TextXAlignment = Enum.TextXAlignment.Left
+InfoTitle.Parent = InfoTopbar
+
+local InfoCloseBtn = Instance.new("TextButton")
+InfoCloseBtn.Size = UDim2.new(0, 25, 0, 25)
+InfoCloseBtn.Position = UDim2.new(1, -30, 0.5, -12)
+InfoCloseBtn.BackgroundTransparency = 1
+InfoCloseBtn.Text = "✕"
+InfoCloseBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
+InfoCloseBtn.Font = Enum.Font.GothamBold
+InfoCloseBtn.TextSize = 12
+InfoCloseBtn.Parent = InfoTopbar
+
+local InfoScroll = Instance.new("Frame")
+InfoScroll.Size = UDim2.new(1, -20, 1, -85) -- Sized up to make room for server/hop tools
+InfoScroll.Position = UDim2.new(0, 10, 0, 35)
+InfoScroll.BackgroundTransparency = 1
+InfoScroll.Parent = ServerInfoFrame
+
+local InfoLayout = Instance.new("UIListLayout")
+InfoLayout.Padding = UDim.new(0, 4)
+InfoLayout.Parent = InfoScroll
+
+local function AddInfoLine(label, valText)
+    local Line = Instance.new("Frame")
+    Line.Size = UDim2.new(1, 0, 0, 16)
+    Line.BackgroundTransparency = 1
+    Line.Parent = InfoScroll
+
+    local Lbl = Instance.new("TextLabel")
+    Lbl.Size = UDim2.new(0.4, 0, 1, 0)
+    Lbl.BackgroundTransparency = 1
+    Lbl.Text = label
+    Lbl.TextColor3 = Color3.fromRGB(160, 160, 170)
+    Lbl.Font = Enum.Font.GothamMedium
+    Lbl.TextSize = 11
+    Lbl.TextXAlignment = Enum.TextXAlignment.Left
+    Lbl.Parent = Line
+
+    local Val = Instance.new("TextLabel")
+    Val.Size = UDim2.new(0.6, 0, 1, 0)
+    Val.Position = UDim2.new(0.4, 0, 0, 0)
+    Val.BackgroundTransparency = 1
+    Val.Text = valText
+    Val.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Val.Font = Enum.Font.GothamBold
+    Val.TextSize = 11
+    Val.TextXAlignment = Enum.TextXAlignment.Left
+    Val.ClipsDescendants = true
+    Val.Parent = Line
+    return Val
+end
+
+local gameName = "Unknown Game"
+pcall(function()
+    gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+end)
+
+local nameVal = AddInfoLine("Player Name:", LocalPlayer.Name)
+local idVal = AddInfoLine("User ID:", tostring(LocalPlayer.UserId))
+local gameVal = AddInfoLine("Game Playing:", gameName)
+local ageVal = AddInfoLine("Account Age:", tostring(LocalPlayer.AccountAge) .. " days")
+local fpsVal = AddInfoLine("System FPS:", "Calculating...")
+local pingVal = AddInfoLine("Ping:", "Calculating...")
+
+-- 🔄 SERVER UTILITIES (REJOIN & HOP)
+local UtilityFrame = Instance.new("Frame")
+UtilityFrame.Size = UDim2.new(1, -20, 0, 35)
+UtilityFrame.Position = UDim2.new(0, 10, 1, -45)
+UtilityFrame.BackgroundTransparency = 1
+UtilityFrame.Parent = ServerInfoFrame
+
+local RejoinBtn = Instance.new("TextButton")
+RejoinBtn.Size = UDim2.new(0.47, 0, 1, 0)
+RejoinBtn.Position = UDim2.new(0, 0, 0, 0)
+RejoinBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+RejoinBtn.Text = "Rejoin Server"
+RejoinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+RejoinBtn.Font = Enum.Font.GothamBold
+RejoinBtn.TextSize = 11
+RejoinBtn.Parent = UtilityFrame
+Instance.new("UICorner", RejoinBtn).CornerRadius = UDim.new(0, 6)
+
+local RejoinStroke = Instance.new("UIStroke")
+RejoinStroke.Thickness = 1
+RejoinStroke.Color = Color3.fromRGB(60, 60, 70)
+RejoinStroke.Parent = RejoinBtn
+
+local HopBtn = Instance.new("TextButton")
+HopBtn.Size = UDim2.new(0.47, 0, 1, 0)
+HopBtn.Position = UDim2.new(0.53, 0, 0, 0)
+HopBtn.BackgroundColor3 = Color3.fromRGB(255, 40, 60)
+HopBtn.Text = "Server Hop"
+HopBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+HopBtn.Font = Enum.Font.GothamBold
+HopBtn.TextSize = 11
+HopBtn.Parent = UtilityFrame
+Instance.new("UICorner", HopBtn).CornerRadius = UDim.new(0, 6)
+
+-- Hop & Rejoin Mechanics
+RejoinBtn.Activated:Connect(function()
+    pcall(function()
+        if #Players:GetPlayers() <= 1 then
+            TeleportService:Teleport(game.PlaceId, LocalPlayer)
+        else
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+        end
+    end)
+end)
+
+HopBtn.Activated:Connect(function()
+    HopBtn.Text = "Searching..."
+    pcall(function()
+        local function GetServerList()
+            local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+            local res = game:HttpGet(url)
+            return HttpService:JSONDecode(res)
+        end
+        local servers = GetServerList()
+        if servers and servers.data then
+            for _, server in ipairs(servers.data) do
+                if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                    TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, LocalPlayer)
+                    return
+                end
+            end
+        end
+    end)
+    task.wait(1.5)
+    HopBtn.Text = "Hop Failed"
+    task.wait(1)
+    HopBtn.Text = "Server Hop"
+end)
+
+-- Draggable logic for Info Panel
+local infoDragging, infoDragStart, infoStartPos
+InfoTopbar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        infoDragging = true
+        infoDragStart = input.Position
+        infoStartPos = ServerInfoFrame.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if infoDragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
+        local delta = input.Position - infoDragStart
+        local newPos = UDim2.new(infoStartPos.X.Scale, infoStartPos.X.Offset + delta.X, infoStartPos.Y.Scale, infoStartPos.Y.Offset + delta.Y)
+        ServerInfoFrame.Position = ClampToScreen(newPos, ServerInfoFrame.Size)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        infoDragging = false
+    end
+end)
+
+InfoCloseBtn.Activated:Connect(function()
+    local t = TweenService:Create(ServerInfoFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
+    t:Play()
+    t.Completed:Wait()
+    ServerInfoFrame:Destroy()
+end)
+
+-- Real-Time System Tracker loop
+task.spawn(function()
+    local runService = game:GetService("RunService")
+    local stats = game:GetService("Stats")
+    while task.wait(1) and ServerInfoFrame.Parent do
+        local fps = math.round(1 / runService.RenderStepped:Wait())
+        fpsVal.Text = tostring(fps) .. " FPS"
+        
+        local ping = math.round(stats.Network.ServerToClientPing:GetValue() * 1000)
+        pingVal.Text = tostring(ping) .. " ms"
+    end
+end)
+
+-- Execute Start System Notifications
 pcall(function()
     StarterGui:SetCore("SendNotification", {
-        Title = "Crypto Hub V8.4",
-        Text = "Optimized for Delta Mobile!",
+        Title = "Crypto Hub V3",
+        Text = "Successfully Injected!",
         Duration = 5,
     })
 end)
 
 task.delay(0.5, OpenMenu)
-
