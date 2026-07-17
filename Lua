@@ -1,1 +1,566 @@
+-- [[ CRYPTO HUB V8.4: DELTA MOBILE OPTIMIZED ]] --
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local StarterGui = game:GetService("StarterGui")
+local VirtualUser = game:GetService("VirtualUser")
+local CoreGui = game:GetService("CoreGui")
+local LocalPlayer = Players.LocalPlayer
+
+-- ==========================================
+-- 🛡️ SYSTEM 1: ANTI-AFK
+-- ==========================================
+pcall(function()
+    if getgenv().AntiAFK_Loaded then return end
+    getgenv().AntiAFK_Loaded = true
+    LocalPlayer.Idled:Connect(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end)
+end)
+
+-- ==========================================
+-- 🛡️ SYSTEM 2: DELTA UNIVERSAL LOADER
+-- ==========================================
+local function SafeLoadScript(url, btn)
+    local success, result = false, nil
+    
+    -- Attempt 1: Standard HttpGet
+    success, result = pcall(function() return game:HttpGet(url) end)
+    
+    -- Attempt 2: Delta/Mobile native request fallback
+    if not success or not result then
+        local req = (request or http_request or (http and http.request))
+        if req then
+            success, result = pcall(function() return req({Url = url, Method = "GET"}).Body end)
+        end
+    end
+
+    if success and result then
+        local execSuccess, execError = pcall(function() loadstring(result)() end)
+        if not execSuccess then
+            warn("CryptoHub Error: " .. tostring(execError))
+            if btn then btn.Text = "Exec Error" end
+        else
+            if btn then btn.Text = "Executed!" end
+        end
+    else
+        warn("CryptoHub Error: All fetch methods failed.")
+        if btn then btn.Text = "Network Error" end
+    end
+    
+    task.wait(2)
+    if btn then btn.Text = "Execute" end
+end
+
+-- ===================================================================== --
+-- ⚙️ SCRIPT LIBRARY ⚙️
+-- ===================================================================== --
+local MyScripts = {
+    {Name = "HoHo Hub (Blox Fruits)", Tags = "Auto-Farm / OP", Url = "https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI"},
+    {Name = "Gravity Hub", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/Dev-GravityHub/BloxFruit/refs/heads/main/Main.lua"},
+    {Name = "Speed Hub X", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"},
+    {Name = "Redz Hub", Tags = "Blox Fruits", Url = "https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"}
+}
+
+-- ==========================================
+-- 🛡️ SYSTEM 3: AGGRESSIVE UI ATTACHMENT
+-- ==========================================
+local ParentGui = nil
+pcall(function() ParentGui = gethui and gethui() end)
+if not ParentGui then pcall(function() ParentGui = CoreGui end) end
+if not ParentGui or not pcall(function() local _ = ParentGui.Name end) then
+    ParentGui = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+for _, gui in ipairs(ParentGui:GetChildren()) do
+    if gui.Name == "CryptoHub_UI" then gui:Destroy() end
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CryptoHub_UI"
+ScreenGui.Parent = ParentGui
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+ScreenGui.IgnoreGuiInset = true 
+
+-- ==========================================
+-- MAIN INTERFACE FRAME
+-- ==========================================
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 0, 0, 0)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0) 
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5) 
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+MainFrame.ClipsDescendants = true
+MainFrame.Visible = false 
+MainFrame.Parent = ScreenGui
+
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Thickness = 2
+MainStroke.Color = Color3.fromRGB(255, 255, 255)
+MainStroke.Parent = MainFrame
+
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 40, 60)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120, 20, 30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 40, 60))
+}
+UIGradient.Rotation = 45
+UIGradient.Parent = MainStroke
+
+-- Top Banner
+local Topbar = Instance.new("Frame")
+Topbar.Size = UDim2.new(1, 0, 0, 45)
+Topbar.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+Topbar.BorderSizePixel = 0
+Topbar.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(0, 300, 1, 0)
+Title.Position = UDim2.new(0, 20, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "CRYPTO HUB <font color='rgb(255, 40, 60)'>V8.4</font>"
+Title.RichText = true
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBlack
+Title.TextSize = 18
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Topbar
+
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 40, 0, 40)
+CloseBtn.Position = UDim2.new(1, -45, 0.5, -20)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Text = "✕"
+CloseBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 16
+CloseBtn.Parent = Topbar
+
+-- ==========================================
+-- TRIPLE TAB SYSTEM
+-- ==========================================
+local TabBar = Instance.new("Frame")
+TabBar.Size = UDim2.new(1, 0, 0, 40)
+TabBar.Position = UDim2.new(0, 0, 0, 45)
+TabBar.BackgroundColor3 = Color3.fromRGB(14, 14, 18)
+TabBar.BorderSizePixel = 0
+TabBar.Parent = MainFrame
+
+local function CreateTabBtn(text, pos, width)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, width, 1, -2)
+    btn.Position = UDim2.new(0, pos, 0, 0)
+    btn.BackgroundTransparency = 1
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(120, 120, 130)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 13
+    btn.Parent = TabBar
+    return btn
+end
+
+local TabScripts = CreateTabBtn("Script Hub", 15, 110)
+local TabExecutor = CreateTabBtn("Custom Executor", 135, 140)
+local TabDevTools = CreateTabBtn("Dev Tools", 285, 110)
+TabScripts.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local TabIndicator = Instance.new("Frame")
+TabIndicator.Size = UDim2.new(0, 80, 0, 2)
+TabIndicator.Position = UDim2.new(0, 30, 1, -2)
+TabIndicator.BackgroundColor3 = Color3.fromRGB(255, 40, 60)
+TabIndicator.BorderSizePixel = 0
+TabIndicator.Parent = TabBar
+
+-- ==========================================
+-- PAGES
+-- ==========================================
+local ScriptsPage = Instance.new("Frame")
+ScriptsPage.Size = UDim2.new(1, 0, 1, -115)
+ScriptsPage.Position = UDim2.new(0, 0, 0, 85)
+ScriptsPage.BackgroundTransparency = 1
+ScriptsPage.Visible = true
+ScriptsPage.Parent = MainFrame
+
+local ExecutorPage = Instance.new("Frame")
+ExecutorPage.Size = UDim2.new(1, 0, 1, -115)
+ExecutorPage.Position = UDim2.new(0, 0, 0, 85)
+ExecutorPage.BackgroundTransparency = 1
+ExecutorPage.Visible = false
+ExecutorPage.Parent = MainFrame
+
+local DevToolsPage = Instance.new("Frame")
+DevToolsPage.Size = UDim2.new(1, 0, 1, -115)
+DevToolsPage.Position = UDim2.new(0, 0, 0, 85)
+DevToolsPage.BackgroundTransparency = 1
+DevToolsPage.Visible = false
+DevToolsPage.Parent = MainFrame
+
+-- ==========================================
+-- PAGE 1: SCRIPTS LIBRARY
+-- ==========================================
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Size = UDim2.new(1, -30, 1, -10)
+ScrollFrame.Position = UDim2.new(0, 15, 0, 10)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.ScrollBarThickness = 4
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 40, 60)
+ScrollFrame.BorderSizePixel = 0
+ScrollFrame.Parent = ScriptsPage
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 10)
+UIListLayout.Parent = ScrollFrame
+
+UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y + 20)
+end)
+
+for _, item in ipairs(MyScripts) do
+    local Card = Instance.new("Frame")
+    Card.Size = UDim2.new(1, -10, 0, 65)
+    Card.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+    Card.Parent = ScrollFrame
+    Instance.new("UICorner", Card).CornerRadius = UDim.new(0, 8)
+
+    local Lbl = Instance.new("TextLabel")
+    Lbl.Size = UDim2.new(0, 200, 0, 20)
+    Lbl.Position = UDim2.new(0, 15, 0, 12)
+    Lbl.BackgroundTransparency = 1
+    Lbl.Text = item.Name
+    Lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Lbl.Font = Enum.Font.GothamBold
+    Lbl.TextSize = 14
+    Lbl.TextXAlignment = Enum.TextXAlignment.Left
+    Lbl.Parent = Card
+    
+    local TagLbl = Instance.new("TextLabel")
+    TagLbl.Size = UDim2.new(0, 100, 0, 15)
+    TagLbl.Position = UDim2.new(0, 15, 0, 35)
+    TagLbl.BackgroundTransparency = 1
+    TagLbl.Text = item.Tags
+    TagLbl.TextColor3 = Color3.fromRGB(100, 255, 120)
+    TagLbl.Font = Enum.Font.GothamMedium
+    TagLbl.TextSize = 11
+    TagLbl.TextXAlignment = Enum.TextXAlignment.Left
+    TagLbl.Parent = Card
+    
+    local ExecBtn = Instance.new("TextButton")
+    ExecBtn.Size = UDim2.new(0, 100, 0, 35)
+    ExecBtn.Position = UDim2.new(1, -115, 0.5, -17)
+    ExecBtn.BackgroundColor3 = Color3.fromRGB(255, 40, 60)
+    ExecBtn.Text = "Execute"
+    ExecBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ExecBtn.Font = Enum.Font.GothamBold
+    ExecBtn.TextSize = 13
+    ExecBtn.Parent = Card
+    Instance.new("UICorner", ExecBtn).CornerRadius = UDim.new(0, 6)
+
+    ExecBtn.Activated:Connect(function()
+        ExecBtn.Text = "Loading..."
+        task.spawn(function()
+            SafeLoadScript(item.Url, ExecBtn) 
+        end)
+    end)
+end
+
+-- ==========================================
+-- PAGE 2: CUSTOM EXECUTOR
+-- ==========================================
+local CodeBox = Instance.new("TextBox")
+CodeBox.Size = UDim2.new(1, -30, 1, -60)
+CodeBox.Position = UDim2.new(0, 15, 0, 10)
+CodeBox.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
+CodeBox.ClearTextOnFocus = false
+CodeBox.MultiLine = true
+CodeBox.Text = ""
+CodeBox.PlaceholderText = "-- Write custom Lua here..."
+CodeBox.TextColor3 = Color3.fromRGB(100, 230, 255)
+CodeBox.Font = Enum.Font.Code
+CodeBox.TextSize = 13
+CodeBox.TextXAlignment = Enum.TextXAlignment.Left
+CodeBox.TextYAlignment = Enum.TextYAlignment.Top
+CodeBox.Parent = ExecutorPage
+Instance.new("UICorner", CodeBox).CornerRadius = UDim.new(0, 8)
+
+local RunCustomBtn = Instance.new("TextButton")
+RunCustomBtn.Size = UDim2.new(0, 150, 0, 40)
+RunCustomBtn.Position = UDim2.new(0, 15, 1, -45)
+RunCustomBtn.BackgroundColor3 = Color3.fromRGB(255, 40, 60)
+RunCustomBtn.Text = "Execute Code"
+RunCustomBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+RunCustomBtn.Font = Enum.Font.GothamBold
+RunCustomBtn.TextSize = 13
+RunCustomBtn.Parent = ExecutorPage
+Instance.new("UICorner", RunCustomBtn).CornerRadius = UDim.new(0, 6)
+
+RunCustomBtn.Activated:Connect(function()
+    local code = CodeBox.Text
+    if code ~= "" then
+        local s, e = pcall(function() loadstring(code)() end)
+        if not s then 
+            RunCustomBtn.Text = "Error! See Console"
+            task.wait(2)
+            RunCustomBtn.Text = "Execute Code"
+        end
+    end
+end)
+
+local ClearBtn = Instance.new("TextButton")
+ClearBtn.Size = UDim2.new(0, 100, 0, 40)
+ClearBtn.Position = UDim2.new(0, 175, 1, -45)
+ClearBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+ClearBtn.Text = "Clear"
+ClearBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ClearBtn.Font = Enum.Font.GothamBold
+ClearBtn.TextSize = 13
+ClearBtn.Parent = ExecutorPage
+Instance.new("UICorner", ClearBtn).CornerRadius = UDim.new(0, 6)
+ClearBtn.Activated:Connect(function() CodeBox.Text = "" end)
+
+-- ==========================================
+-- PAGE 3: DEV TOOLS & MOBILE FPS BOOSTER
+-- ==========================================
+local DevLayout = Instance.new("UIGridLayout")
+DevLayout.CellSize = UDim2.new(0, 165, 0, 100)
+DevLayout.CellPadding = UDim2.new(0, 15, 0, 15)
+DevLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+DevLayout.SortOrder = Enum.SortOrder.LayoutOrder
+DevLayout.Parent = DevToolsPage
+
+local function CreateDevTool(name, desc, color, actionCallback)
+    local ToolCard = Instance.new("Frame")
+    ToolCard.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+    ToolCard.Parent = DevToolsPage
+    Instance.new("UICorner", ToolCard).CornerRadius = UDim.new(0, 8)
+    
+    local ToolTitle = Instance.new("TextLabel")
+    ToolTitle.Size = UDim2.new(1, 0, 0, 30)
+    ToolTitle.Position = UDim2.new(0, 0, 0, 10)
+    ToolTitle.BackgroundTransparency = 1
+    ToolTitle.Text = name
+    ToolTitle.TextColor3 = color
+    ToolTitle.Font = Enum.Font.GothamBold
+    ToolTitle.TextSize = 15
+    ToolTitle.Parent = ToolCard
+
+    local ToolDesc = Instance.new("TextLabel")
+    ToolDesc.Size = UDim2.new(1, -20, 0, 30)
+    ToolDesc.Position = UDim2.new(0, 10, 0, 35)
+    ToolDesc.BackgroundTransparency = 1
+    ToolDesc.Text = desc
+    ToolDesc.TextColor3 = Color3.fromRGB(150, 150, 160)
+    ToolDesc.Font = Enum.Font.GothamMedium
+    ToolDesc.TextSize = 11
+    ToolDesc.TextWrapped = true
+    ToolDesc.Parent = ToolCard
+
+    local ToolBtn = Instance.new("TextButton")
+    ToolBtn.Size = UDim2.new(1, 0, 1, 0)
+    ToolBtn.BackgroundTransparency = 1
+    ToolBtn.Text = ""
+    ToolBtn.Parent = ToolCard
+
+    ToolBtn.Activated:Connect(function()
+        ToolTitle.Text = "Loading..."
+        task.spawn(function()
+            actionCallback()
+            task.wait(1)
+            ToolTitle.Text = name
+        end)
+    end)
+end
+
+-- URL execution wrapper for standard Dev Tools
+local function ExecURL(url) return function() SafeLoadScript(url, nil) end end
+
+-- NEW: Mobile FPS Booster Logic
+local function BoostFPS()
+    pcall(function()
+        local Lighting = game:GetService("Lighting")
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        settings().Rendering.QualityLevel = "Level01"
+        for _, v in pairs(game:GetDescendants()) do
+            if v:IsA("BasePart") and not v:IsA("MeshPart") then
+                v.Material = "Plastic"
+                v.Reflectance = 0
+            elseif v:IsA("Decal") or v:IsA("Texture") then
+                v.Transparency = 1
+            elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                v.Lifetime = NumberRange.new(0)
+            end
+        end
+    end)
+end
+
+CreateDevTool("Infinite Yield", "Advanced Admin Commands.", Color3.fromRGB(255, 255, 80), ExecURL("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))
+CreateDevTool("Mobile FPS Boost", "Removes lag to stop crashes.", Color3.fromRGB(80, 255, 80), BoostFPS)
+CreateDevTool("Simple Spy", "Intercept RemoteEvents.", Color3.fromRGB(80, 255, 255), ExecURL("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))
+CreateDevTool("Dark Dex", "View & edit game files.", Color3.fromRGB(255, 80, 255), ExecURL("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))
+
+-- ==========================================
+-- LOGIC & TAB ANIMATIONS
+-- ==========================================
+local function SwitchTab(tabName)
+    TabScripts.TextColor3 = Color3.fromRGB(120, 120, 130)
+    TabExecutor.TextColor3 = Color3.fromRGB(120, 120, 130)
+    TabDevTools.TextColor3 = Color3.fromRGB(120, 120, 130)
+    
+    ScriptsPage.Visible = false
+    ExecutorPage.Visible = false
+    DevToolsPage.Visible = false
+
+    if tabName == "Scripts" then
+        TabScripts.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ScriptsPage.Visible = true
+        TweenService:Create(TabIndicator, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 30, 1, -2), Size = UDim2.new(0, 80, 0, 2)}):Play()
+    elseif tabName == "Executor" then
+        TabExecutor.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ExecutorPage.Visible = true
+        TweenService:Create(TabIndicator, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 145, 1, -2), Size = UDim2.new(0, 120, 0, 2)}):Play()
+    elseif tabName == "DevTools" then
+        TabDevTools.TextColor3 = Color3.fromRGB(255, 255, 255)
+        DevToolsPage.Visible = true
+        TweenService:Create(TabIndicator, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 295, 1, -2), Size = UDim2.new(0, 90, 0, 2)}):Play()
+    end
+end
+
+TabScripts.Activated:Connect(function() SwitchTab("Scripts") end)
+TabExecutor.Activated:Connect(function() SwitchTab("Executor") end)
+TabDevTools.Activated:Connect(function() SwitchTab("DevTools") end)
+
+-- ==========================================
+-- UI TOGGLE ANIMATIONS
+-- ==========================================
+local isAnimating = false
+
+local function OpenMenu()
+    if isAnimating or MainFrame.Visible then return end
+    isAnimating = true
+    MainFrame.Visible = true
+    local tween = TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 560, 0, 440)
+    })
+    tween:Play()
+    tween.Completed:Wait()
+    isAnimating = false
+end
+
+local function CloseMenu()
+    if isAnimating or not MainFrame.Visible then return end
+    isAnimating = true
+    local tween = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 0, 0, 0)
+    })
+    tween:Play()
+    tween.Completed:Wait()
+    MainFrame.Visible = false
+    isAnimating = false
+end
+
+local function ToggleUI()
+    if MainFrame.Visible then CloseMenu() else OpenMenu() end
+end
+
+CloseBtn.Activated:Connect(CloseMenu)
+
+-- ==========================================
+-- 🛡️ SYSTEM 4: OUT-OF-BOUNDS SAFE DRAGGING
+-- ==========================================
+local function ClampToScreen(position, size)
+    local screenSize = workspace.CurrentCamera.ViewportSize
+    local x = math.clamp(position.X.Offset, 0, screenSize.X - size.X.Offset)
+    local y = math.clamp(position.Y.Offset, 0, screenSize.Y - size.Y.Offset)
+    return UDim2.new(position.X.Scale, x, position.Y.Scale, y)
+end
+
+-- Floating Badge
+local ToggleBadge = Instance.new("Frame") 
+ToggleBadge.Size = UDim2.new(0, 55, 0, 55)
+ToggleBadge.Position = UDim2.new(0, 20, 0, 60)
+ToggleBadge.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+ToggleBadge.Active = true
+ToggleBadge.Visible = true
+ToggleBadge.Parent = ScreenGui
+Instance.new("UICorner", ToggleBadge).CornerRadius = UDim.new(0, 15)
+Instance.new("UIStroke", ToggleBadge).Color = Color3.fromRGB(255, 40, 60)
+
+local BadgeText = Instance.new("TextLabel")
+BadgeText.Size = UDim2.new(1, 0, 1, 0)
+BadgeText.BackgroundTransparency = 1
+BadgeText.Text = "CH"
+BadgeText.TextColor3 = Color3.fromRGB(255, 40, 60)
+BadgeText.Font = Enum.Font.GothamBlack
+BadgeText.TextSize = 18
+BadgeText.Parent = ToggleBadge
+
+local badgeDragging, badgeDragStart, badgeStartPos, hasMoved = false, nil, nil, false
+
+ToggleBadge.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        badgeDragging = true
+        hasMoved = false
+        badgeDragStart = input.Position
+        badgeStartPos = ToggleBadge.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if badgeDragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
+        local delta = input.Position - badgeDragStart
+        if delta.Magnitude > 5 then hasMoved = true end
+        
+        local newPos = UDim2.new(badgeStartPos.X.Scale, badgeStartPos.X.Offset + delta.X, badgeStartPos.Y.Scale, badgeStartPos.Y.Offset + delta.Y)
+        ToggleBadge.Position = ClampToScreen(newPos, ToggleBadge.Size)
+    end
+end)
+
+ToggleBadge.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        badgeDragging = false
+        if not hasMoved then ToggleUI() end
+    end
+end)
+
+-- Main Menu Dragging
+local menuDragging, menuDragStart, menuStartPos
+Topbar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        menuDragging = true
+        menuDragStart = input.Position
+        menuStartPos = MainFrame.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if menuDragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
+        local delta = input.Position - menuDragStart
+        local newPos = UDim2.new(menuStartPos.X.Scale, menuStartPos.X.Offset + delta.X, menuStartPos.Y.Scale, menuStartPos.Y.Offset + delta.Y)
+        -- No clamping for main UI so you can move it mostly out of the way, but anchor points keep it safe.
+        MainFrame.Position = newPos
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        menuDragging = false
+    end
+end)
+
+-- Execute Start Animation
+pcall(function()
+    StarterGui:SetCore("SendNotification", {
+        Title = "Crypto Hub V8.4",
+        Text = "Optimized for Delta Mobile!",
+        Duration = 5,
+    })
+end)
+
+task.delay(0.5, OpenMenu)
 
